@@ -1,0 +1,11 @@
+/frontend/.git-backup/
+blackend/venv/
+**/__pycache__/
+*.py[cod]
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+.env
+.env.*
+!.env.example
+blackend/data/app.db
