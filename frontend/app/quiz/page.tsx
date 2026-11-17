@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { API_URL } from "@/lib/api";
 import { CHOICES, QUESTIONS } from "@/lib/questions";
 
@@ -31,12 +32,10 @@ export default function QuizPage() {
         const next = [...answers];
         next[index] = value;
         setAnswers(next);
+    }
 
-        if (!isLast) {
-            setTimeout(() => {
-                setIndex((prev) => prev + 1);
-            }, 180);
-        }
+    function goBack() {
+        if (index > 0) setIndex(index - 1);
     }
 
     async function submit() {
@@ -57,8 +56,6 @@ export default function QuizPage() {
             }
 
             setPhase("done");
-
-            setTimeout(reset, 4000);
         } catch {
             setError(
                 "ส่งคำตอบไม่สำเร็จ กรุณาตรวจสอบการเชื่อมต่อแล้วลองอีกครั้ง"
@@ -104,15 +101,24 @@ export default function QuizPage() {
                             </p>
 
                             <p className="mt-2 text-xs text-slate-500">
-                                ดูผลลัพธ์ได้ที่จอ Dashboard
+                                ผลของคุณจะแสดงบนหน้าจอ Dashboard แบบเรียลไทม์
                             </p>
 
-                            <button
-                                onClick={reset}
-                                className="mt-7 w-full rounded-xl bg-blue-600 py-3.5 text-sm font-semibold transition-all hover:bg-blue-500 hover:shadow-[0_0_30px_rgba(37,99,235,0.35)]"
-                            >
-                                🔄 ให้คนถัดไปเล่น
-                            </button>
+                            <div className="mt-7 grid gap-3">
+                                <Link
+                                    href="/dashboard?fromQuiz=1"
+                                    className="block w-full rounded-xl bg-blue-600 px-4 py-4 text-sm font-semibold transition-all hover:bg-blue-500 hover:shadow-[0_0_30px_rgba(37,99,235,0.35)]"
+                                >
+                                    ไปดู Dashboard
+                                </Link>
+
+                                <button
+                                    onClick={reset}
+                                    className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3.5 text-sm font-medium text-slate-300 transition hover:border-white/20 hover:bg-white/[0.07] hover:text-white"
+                                >
+                                    ให้คนถัดไปเล่น Quiz
+                                </button>
+                            </div>
                         </div>
 
                         <p className="mt-5 text-[10px] text-slate-600">
@@ -298,7 +304,7 @@ export default function QuizPage() {
                             <div className="mt-4 flex items-center justify-between">
 
                                 <button
-                                    onClick={() => setIndex(index - 1)}
+                                    onClick={goBack}
                                     disabled={index === 0 || phase === "sending"}
                                     className="rounded-lg px-3 py-2 text-xs text-slate-500 transition hover:bg-white/5 hover:text-white disabled:opacity-20"
                                 >
@@ -318,7 +324,7 @@ export default function QuizPage() {
                                 ) : (
                                     <button
                                         onClick={() => setIndex(index + 1)}
-                                        disabled={answers[index] === null}
+                                        disabled={answers[index] === null || phase === "sending"}
                                         className="rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold transition-all hover:bg-blue-500 hover:shadow-[0_0_25px_rgba(37,99,235,0.35)] disabled:cursor-not-allowed disabled:opacity-30"
                                     >
                                         ถัดไป →

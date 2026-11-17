@@ -1,54 +1,50 @@
-# Animal Personality Project
+# Animal Personality Quiz
 
-เว็บทำแบบทดสอบบุคลิกภาพเพื่อทำนายสัตว์ที่มีลักษณะใกล้เคียง พร้อมหน้าแสดงผลและสถิติ
+เว็บแบบทดสอบบุคลิกภาพที่ทำนายว่าสัตว์ชนิดใดมีลักษณะใกล้เคียงกับผู้ทำแบบทดสอบ พร้อมแสดงผลล่าสุดและสถิติผู้เข้าร่วมแบบเรียลไทม์
 
-โปรเจกต์มีสองส่วน:
+## ส่วนประกอบ
 
-- `blackend/` — Backend API ด้วย FastAPI, ใช้โมเดลที่เตรียมไว้ใน `blackend/ml/model.pkl` และบันทึกผลลง SQLite
-- `frontend/` — เว็บไซต์ Next.js
+- `frontend/` — เว็บไซต์ Next.js สำหรับทำแบบทดสอบและแสดง Dashboard
+- `blackend/` — API ด้วย FastAPI, โมเดลทำนาย และฐานข้อมูล SQLite
+- `blackend/ml/model.pkl` — โมเดลที่ใช้ทำนายผล
+- `blackend/data/animal_personality_dataset_25000.csv` — ชุดข้อมูลสำหรับฝึกโมเดล
 
-## สิ่งที่ต้องติดตั้ง
+## ความต้องการของระบบ
 
-- Git
-- Python 3.14 (แนะนำให้ใช้เวอร์ชันนี้เพื่อให้ตรงกับสภาพแวดล้อมที่ใช้สร้างโมเดล)
+- Python 3.14 และ pip
 - Node.js 20.9 ขึ้นไป และ npm
 
-## ดาวน์โหลดโปรเจกต์
+## เริ่มใช้งานในเครื่อง
 
-```bash
-git clone https://github.com/gitgitopop0/machine-learning-project.git
-cd machine-learning-project
-```
+เปิด Terminal สองหน้าต่าง โดยเปิด Backend และ Frontend แยกกัน
 
-## ติดตั้งและเปิด Backend
+### 1. ติดตั้งและเปิด Backend
 
-เปิด Terminal หนึ่งหน้าต่าง แล้วสร้าง virtual environment และติดตั้งแพ็กเกจ:
+บน Windows PowerShell:
 
-### Windows (CMD)
-
-```cmd
+```powershell
 cd blackend
-py -3.14 -m venv venv
-venv\Scripts\activate
+py -3.14 -m venv .venv
+.\.venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
-uvicorn main:app --reload --host 127.0.0.1 --port 8000
+python -m uvicorn main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-### macOS / Linux
+บน macOS หรือ Linux:
 
 ```bash
 cd blackend
-python3.14 -m venv venv
-source venv/bin/activate
+python3.14 -m venv .venv
+source .venv/bin/activate
 python -m pip install -r requirements.txt
-uvicorn main:app --reload --host 127.0.0.1 --port 8000
+python -m uvicorn main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-เมื่อเริ่ม Backend แล้ว API จะอยู่ที่ `http://127.0.0.1:8000` และเอกสาร API อยู่ที่ `http://127.0.0.1:8000/docs` ฐานข้อมูล `blackend/data/app.db` จะถูกสร้างให้อัตโนมัติเมื่อเปิด Backend ครั้งแรก
+API จะทำงานที่ `http://127.0.0.1:8000` และดูเอกสาร API ได้ที่ `http://127.0.0.1:8000/docs` ฐานข้อมูล SQLite ที่ `blackend/data/app.db` จะถูกสร้างให้อัตโนมัติเมื่อเริ่ม Backend ครั้งแรก
 
-## ติดตั้งและเปิด Frontend
+### 2. ติดตั้งและเปิด Frontend
 
-เปิด Terminal อีกหน้าต่าง ที่โฟลเดอร์หลักของโปรเจกต์:
+เปิด Terminal อีกหน้าต่างที่โฟลเดอร์หลักของโปรเจกต์:
 
 ```bash
 cd frontend
@@ -56,25 +52,51 @@ npm ci
 npm run dev
 ```
 
-เปิดเว็บที่ `http://localhost:3000`:
+เว็บไซต์จะทำงานที่ `http://localhost:3000` โดย Frontend ตั้งค่าให้เรียก Backend ที่ `http://127.0.0.1:8000` อยู่แล้ว ระหว่างใช้งานต้องเปิด Backend และ Frontend พร้อมกัน
 
-- แบบทดสอบ: `http://localhost:3000/quiz`
-- Dashboard: `http://localhost:3000/dashboard`
+## วิธีใช้หน้าจอ
 
-Frontend ตั้งค่าให้เรียก Backend ที่ `http://127.0.0.1:8000` ดังนั้นให้เปิดทั้งสองส่วนบนเครื่องเดียวกันระหว่างพัฒนา
+โปรเจกต์รองรับการเปิดคนละจอหรือคนละอุปกรณ์:
 
-## โครงสร้างข้อมูลและโมเดล
+- **จอแสดง Dashboard:** เปิด `http://localhost:3000/dashboard` ค้างไว้ หน้านี้แสดงผลล่าสุดและสถิติสด โดยไม่มีปุ่มกลับไปเล่นแบบทดสอบ
+- **จอทำแบบทดสอบ:** เปิด `http://localhost:3000/quiz` ผู้ทำแบบทดสอบเลือกคำตอบ จากนั้นกด **ถัดไป** เพื่อไปข้อถัดไป เมื่อทำครบให้กดส่งผล
+- หลังส่งคำตอบสำเร็จ กด **ไปดู Dashboard** เพื่อเปิดผลบนหน้าจอนี้ พร้อมปุ่มกลับไปทำแบบทดสอบอีกครั้ง
 
-- ข้อมูลชุดฝึกอยู่ที่ `blackend/data/animal_personality_dataset_25000.csv`
-- โมเดลที่ Backend โหลดอยู่ที่ `blackend/ml/model.pkl`
-- สคริปต์ฝึกโมเดลอยู่ที่ `blackend/ml/train.py`
-- ผลแบบทดสอบของแต่ละเครื่องจะถูกเก็บใน SQLite ที่ `blackend/data/app.db` ซึ่งไม่ถูกส่งขึ้น GitHub
+Dashboard รับผลใหม่ผ่าน WebSocket และโหลดสถิติจาก Backend โดยตรง เมื่อเปิดหน้า Dashboard จะได้รับผลล่าสุดที่บันทึกไว้ด้วย
 
-ไฟล์ `model.pkl` สร้างด้วย scikit-learn รุ่นที่ระบุใน `blackend/requirements.txt` ควรใช้ dependency รุ่นเดียวกันเพื่อหลีกเลี่ยงปัญหาความเข้ากันได้ของโมเดลที่บันทึกไว้
+หน้าแรก `http://localhost:3000` จะเปิด Dashboard โดยอัตโนมัติ
 
-## API หลัก
+## API
 
-- `POST /predict` — ส่งคำตอบ 10 ข้อและรับผลทำนาย
-- `GET /latest` — อ่านผลล่าสุด
-- `GET /stats` — อ่านสถิติผลทำนาย
-- `WS /ws/result` — รับการแจ้งผลล่าสุดผ่าน WebSocket
+| Endpoint | วิธี | รายละเอียด |
+| --- | --- | --- |
+| `/predict` | POST | รับคำตอบ 10 ข้อ (คะแนนข้อละ 1–5) และบันทึกผลทำนาย |
+| `/latest` | GET | อ่านผลทำนายล่าสุด |
+| `/stats` | GET | อ่านจำนวนผู้ทำแบบทดสอบและจำนวนผลแยกตามสัตว์ |
+| `/ws/result` | WebSocket | ส่งผลล่าสุดให้ Dashboard ทันทีเมื่อมีผลใหม่ |
+
+## โครงสร้างโปรเจกต์
+
+```text
+.
+├── blackend/
+│   ├── data/       # ชุดข้อมูล, ข้อมูลสัตว์ และ SQLite
+│   ├── ml/         # โค้ดทำนายและฝึกโมเดล
+│   ├── db.py
+│   ├── main.py
+│   └── requirements.txt
+└── frontend/
+    ├── app/
+    │   ├── dashboard/
+    │   └── quiz/
+    └── lib/
+```
+
+## คำสั่งตรวจสอบ Frontend
+
+```bash
+cd frontend
+npm run lint
+```
+
+ผลแบบทดสอบเก็บไว้ใน SQLite ภายในเครื่องที่ `blackend/data/app.db` ส่วนโมเดลที่ใช้รันเว็บอยู่ใน `blackend/ml/model.pkl` และสคริปต์ฝึกโมเดลอยู่ที่ `blackend/ml/train.py`

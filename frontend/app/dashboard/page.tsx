@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
+import Link from "next/link";
 import { API_URL, WS_URL } from "@/lib/api";
 
 type Info = {
@@ -40,10 +41,24 @@ const ANIMAL_LABEL: Record<string, string> = {
   panda: "🐼 แพนด้า",
 };
 
+function subscribeToLocation(callback: () => void) {
+  window.addEventListener("popstate", callback);
+  return () => window.removeEventListener("popstate", callback);
+}
+
+function getShowQuizButton() {
+  return new URLSearchParams(window.location.search).get("fromQuiz") === "1";
+}
+
 export default function DashboardPage() {
   const [result, setResult] = useState<Result | null>(null);
   const [stats, setStats] = useState<Stats | null>(null);
   const [online, setOnline] = useState(false);
+  const showQuizButton = useSyncExternalStore(
+    subscribeToLocation,
+    getShowQuizButton,
+    () => false
+  );
 
   useEffect(() => {
     let ws: WebSocket | null = null;
@@ -113,10 +128,18 @@ export default function DashboardPage() {
     : [];
 
   return (
-    <main className="relative h-dvh overflow-hidden bg-[#020817] text-white">
+    <main
+      className={`relative bg-[#020817] text-white ${
+        showQuizButton ? "min-h-dvh overflow-x-hidden" : "h-dvh overflow-hidden"
+      }`}
+    >
       <Background />
 
-      <div className="relative z-10 mx-auto flex h-full w-full max-w-6xl flex-col px-4 py-3 sm:px-6 sm:py-4">
+      <div
+        className={`relative z-10 mx-auto flex w-full max-w-6xl flex-col px-4 py-3 sm:px-6 sm:py-4 ${
+          showQuizButton ? "min-h-dvh" : "h-full"
+        }`}
+      >
 
 
         <header className="shrink-0 border-b border-white/[0.08] pb-3">
@@ -215,18 +238,18 @@ export default function DashboardPage() {
           ) : (
 
 
-            <div className="mx-auto grid w-full max-w-5xl gap-4 md:grid-cols-[0.9fr_1.1fr]">
+            <div className="mx-auto grid w-full max-w-5xl gap-3 md:grid-cols-[0.9fr_1.1fr] sm:gap-4">
 
 
-              <section className="flex flex-col justify-center rounded-2xl border border-blue-500/15 bg-[#071426]/95 p-5 text-center shadow-2xl shadow-black/30 backdrop-blur-xl sm:p-6">
+              <section className={`flex flex-col justify-center rounded-2xl border border-blue-500/15 bg-[#071426]/95 text-center shadow-2xl shadow-black/30 backdrop-blur-xl ${showQuizButton ? "p-4 sm:p-5" : "p-5 sm:p-6"}`}>
 
                 <p className="text-[8px] tracking-[0.2em] text-blue-400">
                   YOUR RESULT
                 </p>
 
-                <div className="mx-auto mt-3 flex h-28 w-28 items-center justify-center rounded-full border border-blue-400/15 bg-blue-500/[0.06] shadow-[0_0_50px_rgba(37,99,235,0.12)] sm:h-32 sm:w-32">
+                <div className={`mx-auto mt-3 flex items-center justify-center rounded-full border border-blue-400/15 bg-blue-500/[0.06] shadow-[0_0_50px_rgba(37,99,235,0.12)] ${showQuizButton ? "h-24 w-24 sm:h-28 sm:w-28" : "h-28 w-28 sm:h-32 sm:w-32"}`}>
 
-                  <span className="text-7xl sm:text-8xl">
+                <span className={showQuizButton ? "text-6xl sm:text-7xl" : "text-7xl sm:text-8xl"}>
                     {result.info.emoji}
                   </span>
 
@@ -259,7 +282,7 @@ export default function DashboardPage() {
               </section>
 
 
-              <section className="rounded-2xl border border-blue-500/15 bg-[#071426]/95 p-5 shadow-2xl shadow-black/30 backdrop-blur-xl sm:p-6">
+              <section className={`rounded-2xl border border-blue-500/15 bg-[#071426]/95 shadow-2xl shadow-black/30 backdrop-blur-xl ${showQuizButton ? "p-4 sm:p-5" : "p-5 sm:p-6"}`}>
 
                 <div className="flex items-center justify-between">
 
@@ -282,7 +305,7 @@ export default function DashboardPage() {
                 </div>
 
 
-                <div className="mt-4 space-y-3.5">
+                <div className={`space-y-3 ${showQuizButton ? "mt-3 sm:space-y-3" : "mt-4 sm:space-y-3.5"}`}>
 
                   {TRAITS.map(([key, label]) => {
 
@@ -336,10 +359,10 @@ export default function DashboardPage() {
 
           <section className="shrink-0 border-t border-white/[0.06] pt-3">
 
-            <div className="mx-auto w-full max-w-5xl rounded-xl border border-blue-500/10 bg-[#071426]/80 px-4 py-3 backdrop-blur-md">
+            <div className={`mx-auto w-full max-w-5xl rounded-xl border border-blue-500/10 bg-[#071426]/80 backdrop-blur-md ${showQuizButton ? "px-3 py-2 sm:px-4" : "px-4 py-3"}`}>
 
 
-              <div className="mb-3 flex items-center justify-between">
+              <div className={`flex items-center justify-between ${showQuizButton ? "mb-2" : "mb-3"}`}>
 
                 <div className="flex items-center gap-2">
 
@@ -377,7 +400,7 @@ export default function DashboardPage() {
               </div>
 
 
-              <div className="grid grid-cols-1 gap-x-8 gap-y-2.5 sm:grid-cols-2">
+              <div className={`grid gap-x-5 ${showQuizButton ? "grid-cols-2 gap-y-2 sm:grid-cols-3 lg:grid-cols-5" : "grid-cols-1 gap-y-2.5 sm:grid-cols-2"}`}>
 
                 {animalStats.map(([animal, count]) => {
 
@@ -427,12 +450,24 @@ export default function DashboardPage() {
 
 
         <footer className="shrink-0 pt-2 text-center">
-
-          <p className="text-[8px] text-slate-700">
-            มหาวิทยาลัยมหาสารคาม · คณะวิทยาการสารสนเทศ ·
-            Data Science & Data Engineering
-          </p>
-
+          {showQuizButton ? (
+            <div className="flex justify-center">
+            <Link
+              href="/quiz"
+              className="group inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-blue-300/25 bg-gradient-to-r from-blue-700 to-blue-600 px-4 py-2 text-xs font-semibold text-white shadow-md shadow-blue-950/40 transition duration-200 hover:from-blue-600 hover:to-cyan-600 hover:shadow-blue-900/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-300"
+            >
+              <span aria-hidden="true" className="flex h-5 w-5 items-center justify-center rounded-full bg-white/10 text-sm transition group-hover:rotate-[-35deg]">
+                ↻
+              </span>
+              กลับไปทำแบบทดสอบอีกครั้ง
+            </Link>
+            </div>
+          ) : (
+            <p className="text-[8px] text-slate-700">
+              มหาวิทยาลัยมหาสารคาม · คณะวิทยาการสารสนเทศ ·
+              Data Science & Data Engineering
+            </p>
+          )}
         </footer>
 
       </div>
